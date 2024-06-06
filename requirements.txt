@@ -1,0 +1,12 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+numpy
+tqdm
+argparse
+joblib
+pandas
+h5py
+sklearn
+datetime
+pandas
+logging
+copy
