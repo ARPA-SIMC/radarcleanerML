@@ -11,5 +11,5 @@ Il file ```requirements.txt``` contiene le librerie Python installate nell'ambie
 
 La directory ```data``` contiene i dati e i dataset, per ciascun radar, San Pietro Capofiume (SPC) e Gattatico (GAT).
 
-La directory scripts contiene scripts e il dataloader.
+La directory scripts contiene ```scripts``` e il dataloader.
 
