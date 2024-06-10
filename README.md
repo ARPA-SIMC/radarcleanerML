@@ -28,3 +28,8 @@ $ ./setup_env.sh
 ```
 
 Questo script crea l'ambiente virtuale Python e scarica i dati dal server opendata di Arpae-SIMC.
+
+## Licenza
+
+`radarcleanerML` è rilasciato sotto licenza GPLv3. I dati scaricati dal server opendata e salvati nella
+directory `data` sono rilasciati sotto licenza CC BY 4.0.
