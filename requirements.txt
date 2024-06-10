@@ -5,7 +5,7 @@ argparse
 joblib
 pandas
 h5py
-sklearn
+scikit-learn
 datetime
 pandas
 logging
