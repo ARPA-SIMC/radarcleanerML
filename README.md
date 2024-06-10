@@ -21,7 +21,7 @@ Inoltre, dopo il setup, sono generate le seguenti directory:
 
 ## Setup
 
-Per preparare l'ambiente di lavoro, è sufficiene lanciare lo script `setup_env.sh`:
+Per preparare l'ambiente di lavoro, è sufficiente lanciare lo script `setup_env.sh`:
 
 ```
 $ ./setup_env.sh
