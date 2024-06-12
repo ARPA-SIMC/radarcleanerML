@@ -158,9 +158,9 @@ class CustomBin:
         OUTPUT:
         --bool : True se l'istanza ha l'attributo attr, False altrimenti.
         """
-            if attr in self.__dict__.keys():
-                return True
-            return False
+        if attr in self.__dict__.keys():
+            return True
+        return False
 
 class BinDSet:
 
