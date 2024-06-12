@@ -2,6 +2,7 @@ from utils_dset import BinDSet
 import numpy as np
 import argparse
 import logging
+import os
 
 logging.basicConfig(level=logging.INFO)
 
@@ -69,6 +70,9 @@ if __name__ == '__main__':
     volume_path=args.vol_path
     save_path=args.out_path
     selected_elevs=args.sel_elevs
+
+    if not os.path.exists(save_path):
+        os.makedirs(save_path, exist_ok=True)
 
     used_features_elevs=[['DBZH',
             'DBZH_SD2D',

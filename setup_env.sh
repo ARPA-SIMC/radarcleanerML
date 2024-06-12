@@ -16,3 +16,5 @@ $PY_EXE -m venv .venv
 source .venv/bin/activate
 .venv/bin/$PY_EXE -m pip install --upgrade pip
 .venv/bin/$PY_EXE -m pip install -r requirements.txt
+
+./scripts/create_dset.sh
