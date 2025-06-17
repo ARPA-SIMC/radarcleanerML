@@ -12,7 +12,7 @@ wget -nv --directory-prefix=data --no-parent --reject "index.html*" -r -nH --cut
 echo "Rebuilding venv for ${APP_NAME}..."
 PY_EXE=python3
 rm -fr .venv/
-$PY_EXE -m venv .venv
+$PY_EXE -m  venv --sistem-site-packages .venv
 source .venv/bin/activate
 .venv/bin/$PY_EXE -m pip install --upgrade pip
 .venv/bin/$PY_EXE -m pip install -r requirements.txt
