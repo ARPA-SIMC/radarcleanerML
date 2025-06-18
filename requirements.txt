@@ -6,4 +6,3 @@ pandas
 h5py
 scikit-learn
 pandas
-simcradarlib @ git+https://github.com/ARPA-SIMC/simcradarlib@v0.6-1
