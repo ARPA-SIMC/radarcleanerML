@@ -6,3 +6,6 @@ pandas
 h5py
 scikit-learn
 pandas
+xgboost
+matplotlib
+yaml
