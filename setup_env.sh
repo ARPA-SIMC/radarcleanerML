@@ -18,7 +18,7 @@ source .venv/bin/activate
 .venv/bin/$PY_EXE -m pip install -r requirements.txt
 if ! python -c 'import importlib.metadata; importlib.metadata.version("simcradarlib")' 2>/dev/null
 then
-    pip install "simcradarlib @ git+https://github.com/ARPA-SIMC/simcradarlib@v0.6-1"
+    pip install "simcradarlib @ git+https://github.com/ARPA-SIMC/simcradarlib@v0.8-1"
 fi
 
 ./scripts/create_dset.sh

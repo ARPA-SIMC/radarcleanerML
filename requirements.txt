@@ -1,11 +1,9 @@
 --extra-index-url https://download.pytorch.org/whl/cpu
-numpy
-tqdm
-joblib
-pandas
-h5py
-scikit-learn
-pandas
-xgboost
-matplotlib
-yaml
+numpy==1.14.3
+tqdm==4.64.1
+joblib==1.1.1
+pandas==0.25.3
+h5py==2.9.0
+scikit-learn==0.24.2
+xgboost==1.5.2
+matplotlib==3.0.3

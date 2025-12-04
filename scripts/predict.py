@@ -151,10 +151,10 @@ def pred(model_, f_topred, origvol, used_features_elevs, label)->None:
     undetect= origvol.group_datasets_data_what[0][indexz].undetect
     nodata = origvol.group_datasets_data_what[0][indexz].nodata
     nodata = nodata*origvol.group_datasets_data_what[0][indexz].gain + origvol.group_datasets_data_what[0][indexz].offset
+    undetect = undetect * origvol.group_datasets_data_what[0][indexz].gain + origvol.group_datasets_data_what[0][indexz].offset
 
     for iel, elev_angle in enumerate(origvol.elangles):
         zraw = origvol.get_data_by_elangle(elev_angle,"DBZH")
-        #if radar=='gat':
         if len(used_features_elevs)==1:
             actualds = get_Xdsvars_fromh5_elevs4(f_topred, used_features_elevs, [elev_angle], [elev_angle])
         else:
@@ -163,45 +163,31 @@ def pred(model_, f_topred, origvol, used_features_elevs, label)->None:
         ret_ds_ = actualds[retain_indx,:]
         RFlabs_ = model_.predict_proba( ret_ds_)
         out_ = np.zeros((RFlabs_[:,0].shape))
+        nbins = origvol.group_datasets_where[iel].nbins
+        nbins_onray = 0
         for i,b in enumerate(RFlabs_):
             maxclass = list(b).index(b.max())
             if radar=='gat':
-                if "XGB" in label:
-                    if(maxclass == 0 and b.max()<=0.95 and (b[0]-b[1])<0.98):
-                        maxclass = 1
-                elif label=="RF09" :
-                    if maxclass==0 and b.max<0.9:
-                        maxclass = 1
-                elif( label=="RF08" and maxclass==0 and b.max<0.8):
-                    maxclass = 1
-                else:
-                    pass
+                #uso XGB0 per GAT
+                if( maxclass==0 and b.max()<=0.95 and (b[0]-b[1])<0.98):
+                    maxclass=1
             if radar=="spc":
-                if label=="RF":
-                    if(maxclass==0 and b.max()<=0.8 and (b[0]-b[4])<0.98):
-                        maxclass=4
-                elif label=="XGB":
-                    if(maxclass == 0 and ((b[0]-b[3])<0.98 or (b[0]-b[1])<0.98 or (b[0]-b[4])<0.98 or (b[0]-b[2])<0.98)):
-                        maxclass = 1
-                else:
-                     pass   
+                if(maxclass == 0 and ((b[0]-b[3])<0.98 or (b[0]-b[1])<0.98 or (b[0]-b[4])<0.98 or (b[0]-b[2])<0.98)):
+                    maxclass=1
+                    
             out_[i] = maxclass
 
-        mask_RF_ = np.ones(zraw.ravel().shape)
-        mask_RF_[retain_indx] = out_.astype(bool)
-
         rstart = origvol.group_datasets_where[iel].rstart
-        nbins = origvol.group_datasets_where[iel].nbins
         rscale = origvol.group_datasets_where[iel].rscale
         r = np.arange(rstart,rstart + (nbins+1) * rscale, rscale)
 
         nrays = origvol.group_datasets_where[iel].nrays
         az_binsize = 360. / nrays
         az = np.arange(0., 360.+az_binsize, 360. / nrays)
+        site=(origvol.root_where.lon,origvol.root_where.lat,origvol.root_where.height)                
 
-        site=(origvol.root_where.lon,origvol.root_where.lat,origvol.root_where.height)
-
-        #myxyz, myproj = spherical_to_xyz(r, az, elev_angle, site)
+        mask_RF_ = np.ones(zraw.ravel().shape)
+        mask_RF_[retain_indx] = out_.astype(bool)
 
         varsnames_elangle = origvol.varsnames.copy()
         if elev_angle==max(origvol.elangles) and "Z_VD" in varsnames_elangle:
@@ -212,7 +198,6 @@ def pred(model_, f_topred, origvol, used_features_elevs, label)->None:
         zraw = (zraw- offsetx )/ gainx
         outRF_ = np.ma.masked_array(zraw, mask_RF_.reshape((nrays,nbins)))
         outRF_ = np.ma.filled(outRF_, fill_value=nodata)
-        #outRF_ = np.ma.filled(outRF_, fill_value=undetect-offsetx)
         pyel = [k for k in out_vol.keys() if 'dataset' in k and out_vol[f'{k}/where'].attrs['elangle']==elev_angle][0]
         pyq = [q for q in out_vol[f'{pyel}'].keys() if 'data' in q and out_vol[f'{pyel}/{q}/what'].attrs['quantity'].decode()=='DBZH' ][0]
         out_vol[f'{pyel}/{pyq}/data'][:] = outRF_.astype(np.uint16)
@@ -238,14 +223,17 @@ def plot_classpred(model_, outdir, f_vol, used_features_elevs)->None:
     None : sovrascrive la riflettività con il campo corretto con model_ e non restituisce niente.
     """
 
-    livelli_prob = [0.,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9, 1.0]
-    colori_prob  = ['#3288bd','#66c2a5','#abdda4','#e6f598',
-                    '#fee08b','#fdae61','#f46d43','#d53e4f', '#f05b6c']
+    livelli_prob = [0.,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95,1.0]
+    #livelli_prob = [0.0,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8]
+    livelli_diff = [-0.8,-0.6,-0.4,-0.2,0.0,0.2,0.4,0.6,0.8, 0.9]
+    colori_prob  = ['#94caeb','#3288bd','#66c2a5','#abdda4','#e6f598',
+                    '#fee08b','#fdae61','#f46d43','#d53eb4', '#a35bf0']
     cmap_prob,norm_prob=colors.from_levels_and_colors(livelli_prob,colori_prob,extend='neither')
+    cmap_diff, norm_diff = colors.from_levels_and_colors(livelli_diff,colori_prob[:-1],extend='neither')
 
-    livelli_class = [0.,1.,2.,3,4]
+    livelli_class = [0.,1.,2.,3,4, 5]
     coloriclass  = ['#3288bd','#abdda4',
-               '#fee08b','#d53e4f']
+                    '#fee08b','#d53e4f','#d92dea']
     cmap_class,norm_class=colors.from_levels_and_colors(livelli_class,coloriclass,extend='neither')
 
     origvol=OdimHierarchyPvol()
@@ -261,6 +249,7 @@ def plot_classpred(model_, outdir, f_vol, used_features_elevs)->None:
     undetect= origvol.group_datasets_data_what[0][indexz].undetect
     nodata = origvol.group_datasets_data_what[0][indexz].nodata
     nodata = nodata*origvol.group_datasets_data_what[0][indexz].gain + origvol.group_datasets_data_what[0][indexz].offset
+    undetect = undetect*origvol.group_datasets_data_what[0][indexz].gain + origvol.group_datasets_data_what[0][indexz].offset
 
     #for iel, elev_angle in enumerate(origvol.elangles):
     for iel, elev_angle in enumerate([0.5]):
@@ -299,14 +288,23 @@ def plot_classpred(model_, outdir, f_vol, used_features_elevs)->None:
 
         #plotto classe + probabile
         out_ = np.zeros((RFlabs_[:,0].shape))
+        diff_03 = np.zeros((RFlabs_[:,0].shape))
         for i,b in enumerate(RFlabs_):
             maxclass = list(b).index(b.max())
             out_[i] = maxclass
+            diff_03[i] = b[0] - b[3]
         base_ppi=np.zeros(zraw.ravel().shape)
         base_ppi[retain_indx] = out_
         fig = plt.figure(figsize=(10,10))
         plot_ppi_curvilinear(fig,cmap_class,norm_class,livelli_class,"class",livelli_class,base_ppi.reshape((nrays,nbins)),4,myxyz,r)
         outname=os.path.join(outdir,f"{radar}class_{voldate.strftime('%Y%m%d%H%M')}.png")
+        plt.savefig(outname, dpi=300, bbox_inches="tight")
+
+        base_ppi=np.zeros(zraw.ravel().shape)
+        base_ppi[retain_indx] = diff_03
+        fig = plt.figure(figsize=(10,10))
+        plot_ppi_curvilinear(fig,cmap_diff,norm_diff,livelli_diff,"Diff Prob Meteo Int.Medie",livelli_diff,base_ppi.reshape((nrays,nbins)),4,myxyz,r)
+        outname=os.path.join(outdir,f"{radar}diffprob03_{voldate.strftime('%Y%m%d%H%M')}.png")
         plt.savefig(outname, dpi=300, bbox_inches="tight")
         
         del zraw, actualds, retain_indx, ret_ds_, RFlabs_

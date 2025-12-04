@@ -35,7 +35,8 @@ Processing:
    I PPI vengono generati in <outdir>/<RADAR>/<modelname>/
 
 Esempio di lancio:
-./ml_cleaner.sh -s 20250127Z0225 -e 20250127Z0225 -r spc -i ../testcase/ -o . -m ../models/spc/rftest/spc_best_rf_train.pkl -l XGB -c
+./ml_cleaner.sh -s 20250127Z0225 -e 20250127Z0225 -r spc -i ../testcase/ -o . -m ../models/spc/ALL_spc_best_xgb_train2.pkl -l XGBcond -c
+./ml_cleaner.sh -s 20220818Z1000 -e 20220818Z1000 -r gat -i ../testcase/ -o . -m ../models/gat/ALL_gat_xgb0.pkl -l XGB0 -c
 
 in questo modo si processa il volume acquisito da spc alle 2:25 UTC del 2025/1/27 con il 
 modello di ML spc_best_rf_train.pkl al path passato in input sotto la flag -m; 
