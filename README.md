@@ -10,7 +10,9 @@ Il repository è organizzato nel seguente modo:
 
 * `setup_env.sh`: script per il setup (vedi sezione "Setup").
 * `requirements.txt`: contiene l'elenco dei moduli Python necessari.
-* `scripts`: contiene gli script Python e il dataloader.
+* `models`: contiene il modello finale di machine learning selezionato più performante, allenato sul dataset di training del corrispondente radar, nella sottocartella con il nome del radar corrispondente.
+            Ad esempio in models/spc/ si trova il modello per processare i volumi di San Pietro Capofiume.
+* `scripts`: contiene gli script Python, il dataloader, il codice per usare i modelli di machine learning in inferenza su volumi radar reali.
 
 Inoltre, dopo il setup, sono generate le seguenti directory:
 
